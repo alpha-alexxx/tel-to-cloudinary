@@ -1,237 +1,515 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="telegram-dark">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Telegram → Cloudinary Migrator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+  <meta name="description" content="Professional Telegram to Cloudinary Migration Tool" />
+  <meta name="theme-color" content="#0f0f23" />
+  <title>TeleMigrate | Professional Cloud Migration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>☁️</text></svg>" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23667eea'/><stop offset='100%25' style='stop-color:%23764ba2'/></linearGradient></defs><rect fill='url(%23g)' rx='12' width='48' height='48'/><text y='32' x='50%25' text-anchor='middle' font-family='system-ui' font-weight='700' font-size='24' fill='white'>TM</text></svg>" />
 </head>
 <body>
-  <!-- ─────────────────────── Auth / setup overlay ─────────────────────── -->
+  <!-- ─────────────────────── Auth / Setup Overlay ─────────────────────── -->
   <div class="overlay" id="authOverlay" hidden>
+    <div class="overlay__backdrop"></div>
     <div class="overlay__card">
-      <div class="overlay__brand">
-        <span class="brand__mark" aria-hidden="true">TC</span>
-        <div>
-          <strong>Telegram → Cloudinary</strong>
-          <p class="overlay__sub" id="stepSub">Unlock the dashboard to continue.</p>
+      <div class="overlay__header">
+        <div class="overlay__logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="overlay__brand-text">
+            <h1 class="overlay__title">TeleMigrate</h1>
+            <p class="overlay__subtitle">Telegram → Cloudinary</p>
+          </div>
+        </div>
+        <p class="overlay__desc" id="stepSub">Secure professional migration platform</p>
+      </div>
+
+      <div class="stepper" id="stepTrack">
+        <div class="stepper__item" data-step="passcode">
+          <div class="stepper__indicator">1</div>
+          <span class="stepper__label">Unlock</span>
+        </div>
+        <div class="stepper__divider"></div>
+        <div class="stepper__item" data-step="phone">
+          <div class="stepper__indicator">2</div>
+          <span class="stepper__label">Telegram</span>
+        </div>
+        <div class="stepper__divider"></div>
+        <div class="stepper__item" data-step="cloudinary">
+          <div class="stepper__indicator">3</div>
+          <span class="stepper__label">Cloudinary</span>
         </div>
       </div>
 
-      <ol class="steps" id="stepTrack">
-        <li data-step="passcode">Unlock</li>
-        <li data-step="phone">Telegram</li>
-        <li data-step="cloudinary">Cloudinary</li>
-      </ol>
-
-      <!-- Step 1: dashboard passcode -->
+      <!-- Step 1: Dashboard Passcode -->
       <section class="pane" data-pane="passcode" hidden>
-        <label class="field">
-          <span>Dashboard passcode</span>
-          <input type="password" id="inpPasscode" autocomplete="current-password"
-                 placeholder="Set in backend/.env" />
-        </label>
+        <div class="input-group">
+          <label for="inpPasscode" class="input-label">
+            <span class="label-text">Dashboard Passcode</span>
+          </label>
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input type="password" id="inpPasscode" autocomplete="current-password"
+                   placeholder="Enter your secure passcode" class="styled-input" />
+          </div>
+        </div>
         <p class="pane__note">
-          This gate exists so a stranger who finds the port can't make Telegram
-          send a login code to your phone.
+          <svg class="note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+          </svg>
+          Security gate prevents unauthorized access to your Telegram account.
         </p>
-        <button class="btn btn--primary btn--block" id="btnUnlock" type="button">Unlock</button>
+        <button class="btn btn--primary btn--full" id="btnUnlock" type="button">
+          <span>Unlock Dashboard</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
       </section>
 
-      <!-- Step 2: phone number -->
+      <!-- Step 2: Phone Number -->
       <section class="pane" data-pane="phone" hidden>
         <div class="account-switch" id="knownAccounts" hidden>
           <p class="pane__label">Continue as</p>
           <div id="knownAccountList" class="account-switch__list"></div>
-          <p class="pane__label pane__label--or">or sign in with another number</p>
+          <p class="pane__label pane__label--separator">or sign in with another number</p>
         </div>
-        <label class="field">
-          <span>Phone number</span>
-          <input type="tel" id="inpPhone" autocomplete="tel" placeholder="+91 98765 43210" />
-        </label>
-        <p class="pane__note">Telegram sends the code to your app, not by SMS, when you're already signed in elsewhere.</p>
-        <button class="btn btn--primary btn--block" id="btnSendCode" type="button">Send code</button>
+        <div class="input-group">
+          <label for="inpPhone" class="input-label">
+            <span class="label-text">Phone Number</span>
+          </label>
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            <input type="tel" id="inpPhone" autocomplete="tel" placeholder="+1 (555) 123-4567" class="styled-input" />
+          </div>
+        </div>
+        <p class="pane__note">
+          <svg class="note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          Telegram sends the code to your app when you're already signed in elsewhere.
+        </p>
+        <button class="btn btn--primary btn--full" id="btnSendCode" type="button">
+          <span>Send Verification Code</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+        </button>
       </section>
 
       <!-- Step 3: OTP -->
       <section class="pane" data-pane="code" hidden>
-        <label class="field">
-          <span>Login code sent to <b id="maskedPhone"></b></span>
-          <input type="text" id="inpCode" inputmode="numeric" autocomplete="one-time-code"
-                 maxlength="6" placeholder="12345" class="input--code" />
-        </label>
+        <div class="input-group">
+          <label for="inpCode" class="input-label">
+            <span class="label-text">Verification Code</span>
+            <span class="label-sub">Sent to <strong id="maskedPhone"></strong></span>
+          </label>
+          <div class="input-wrapper input-wrapper--centered">
+            <input type="text" id="inpCode" inputmode="numeric" autocomplete="one-time-code"
+                   maxlength="6" placeholder="000000" class="styled-input styled-input--code" />
+          </div>
+        </div>
         <p class="pane__note" id="codeTimer"></p>
-        <button class="btn btn--primary btn--block" id="btnVerifyCode" type="button">Verify</button>
-        <button class="link-btn link-btn--block" id="btnBackToPhone" type="button">Use a different number</button>
+        <button class="btn btn--primary btn--full" id="btnVerifyCode" type="button">
+          <span>Verify & Continue</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </button>
+        <button class="btn btn--link btn--full" id="btnBackToPhone" type="button">Use a different number</button>
       </section>
 
       <!-- Step 4: 2FA -->
       <section class="pane" data-pane="password" hidden>
-        <label class="field">
-          <span>Two-step verification password</span>
-          <input type="password" id="inpPassword" autocomplete="current-password" />
-        </label>
+        <div class="input-group">
+          <label for="inpPassword" class="input-label">
+            <span class="label-text">Two-Step Verification</span>
+            <span class="label-sub">Enter your cloud password</span>
+          </label>
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input type="password" id="inpPassword" autocomplete="current-password" class="styled-input" />
+          </div>
+        </div>
         <p class="pane__note" id="passwordHint"></p>
-        <button class="btn btn--primary btn--block" id="btnSubmitPassword" type="button">Sign in</button>
+        <button class="btn btn--primary btn--full" id="btnSubmitPassword" type="button">
+          <span>Sign In Securely</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+          </svg>
+        </button>
       </section>
 
       <!-- Step 5: Cloudinary -->
       <section class="pane" data-pane="cloudinary" hidden>
-        <label class="field">
-          <span>Cloud name</span>
-          <input type="text" id="inpCloudName" autocomplete="off" placeholder="your-cloud" />
-        </label>
-        <label class="field">
-          <span>API key</span>
-          <input type="text" id="inpApiKey" autocomplete="off" />
-        </label>
-        <label class="field">
-          <span>API secret</span>
-          <input type="password" id="inpApiSecret" autocomplete="off" />
-        </label>
-        <div class="field-row">
-          <label class="field field--grow">
-            <span>Folder</span>
-            <input type="text" id="inpFolder" value="telegram_migration" />
+        <div class="input-group">
+          <label for="inpCloudName" class="input-label">
+            <span class="label-text">Cloud Name</span>
           </label>
-          <label class="toggle toggle--field">
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+            </svg>
+            <input type="text" id="inpCloudName" autocomplete="off" placeholder="your-cloud-name" class="styled-input" />
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="inpApiKey" class="input-label">
+              <span class="label-text">API Key</span>
+            </label>
+            <div class="input-wrapper">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 2l-2 2m-7.61 7.61a5 5 0 1 1-7.07 7.07 5 5 0 0 1 7.07-7.07zm0 0L19.5 19.5"/>
+              </svg>
+              <input type="text" id="inpApiKey" autocomplete="off" placeholder="123456789012345" class="styled-input" />
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="inpApiSecret" class="input-label">
+              <span class="label-text">API Secret</span>
+            </label>
+            <div class="input-wrapper">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <input type="password" id="inpApiSecret" autocomplete="off" placeholder="••••••••••••••••" class="styled-input" />
+            </div>
+          </div>
+        </div>
+        <div class="input-row input-row--options">
+          <div class="input-group input-group--grow">
+            <label for="inpFolder" class="input-label">
+              <span class="label-text">Destination Folder</span>
+            </label>
+            <div class="input-wrapper">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+              </svg>
+              <input type="text" id="inpFolder" value="telegram_migration" class="styled-input" />
+            </div>
+          </div>
+          <label class="toggle toggle--standalone">
             <input type="checkbox" id="inpFolderPerChat" checked />
-            <span>Sub-folder per chat</span>
+            <span class="toggle__slider"></span>
+            <span class="toggle__label">Sub-folder per chat</span>
           </label>
         </div>
-        <p class="pane__note">Verified against Cloudinary before it's saved, so a typo fails here rather than on file 300 of a run.</p>
-        <button class="btn btn--primary btn--block" id="btnSaveCloudinary" type="button">Save and continue</button>
-        <button class="link-btn link-btn--block" id="btnSkipCloudinary" type="button" hidden>Cancel</button>
+        <p class="pane__note">
+          <svg class="note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          Credentials are verified before saving to prevent migration errors.
+        </p>
+        <button class="btn btn--primary btn--full" id="btnSaveCloudinary" type="button">
+          <span>Save Configuration</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </button>
+        <button class="btn btn--link btn--full" id="btnSkipCloudinary" type="button" hidden>Cancel Setup</button>
       </section>
 
-      <p class="overlay__error" id="authError" role="alert" hidden></p>
+      <div class="error-banner" id="authError" role="alert" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span class="error-text"></span>
+      </div>
     </div>
   </div>
 
-  <div class="app">
+  <div class="app-container">
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="mobile-brand">
+        <div class="logo-icon logo-icon--sm">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="mobile-brand__text">TeleMigrate</span>
+      </div>
+      <button class="account-toggle" id="accountToggle" aria-label="Account menu">
+        <div class="avatar avatar--xs" id="mobileAvatar"></div>
+      </button>
+    </header>
 
-    <!-- ───────────────────────────── Sidebar ───────────────────────────── -->
-    <aside class="sidebar" aria-label="Chats">
-      <header class="sidebar__head">
+    <!-- Overlay for mobile navigation -->
+    <div class="nav-overlay" id="navOverlay" hidden></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" aria-label="Chats" id="sidebar">
+      <div class="sidebar__header">
         <div class="brand">
-          <span class="brand__mark" aria-hidden="true">TC</span>
-          <div class="brand__text">
-            <strong id="accountName">Telegram → Cloudinary</strong>
-            <span id="accountLine" class="brand__sub">Connecting…</span>
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="brand__info">
+            <strong class="brand__name" id="accountName">TeleMigrate</strong>
+            <span class="brand__status" id="accountLine">Connecting…</span>
           </div>
           <button class="icon-btn" id="btnAccountMenu" type="button"
-                  aria-haspopup="true" aria-expanded="false" title="Account">⋯</button>
-          <div class="menu" id="accountMenu" hidden role="menu">
-            <p class="menu__label">Accounts</p>
-            <div id="menuAccountList"></div>
-            <button class="menu__item" id="btnAddAccount" type="button" role="menuitem">Add another account</button>
-            <hr class="menu__rule" />
-            <button class="menu__item" id="btnCloudinarySettings" type="button" role="menuitem">Cloudinary target…</button>
-            <button class="menu__item" id="btnSignOut" type="button" role="menuitem">Sign out of Telegram</button>
-            <button class="menu__item menu__item--muted" id="btnLock" type="button" role="menuitem">Lock dashboard</button>
+                  aria-haspopup="true" aria-expanded="false" title="Account">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+            </svg>
+          </button>
+          <div class="dropdown-menu" id="accountMenu" hidden role="menu">
+            <div class="dropdown__header">
+              <span class="dropdown__title">Account</span>
+            </div>
+            <div id="menuAccountList" class="dropdown__section"></div>
+            <div class="dropdown__divider"></div>
+            <button class="dropdown__item" id="btnAddAccount" type="button" role="menuitem">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 15v3M6 15v3M12 15v3M3 9h18M3 9a9 9 0 0 1 18 0M3 9V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v3"/>
+              </svg>
+              Add Account
+            </button>
+            <button class="dropdown__item" id="btnCloudinarySettings" type="button" role="menuitem">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+              Cloudinary Settings
+            </button>
+            <div class="dropdown__divider"></div>
+            <button class="dropdown__item" id="btnSignOut" type="button" role="menuitem">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+              </svg>
+              Sign Out
+            </button>
+            <button class="dropdown__item dropdown__item--muted" id="btnLock" type="button" role="menuitem">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              Lock Dashboard
+            </button>
           </div>
         </div>
-        <div class="search">
-          <input id="chatSearch" type="search" placeholder="Search chats" autocomplete="off"
-                 aria-label="Search chats" />
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+          <input id="chatSearch" type="search" placeholder="Search conversations..." autocomplete="off"
+                 aria-label="Search chats" class="search-input" />
         </div>
-      </header>
+      </div>
 
-      <div class="sidebar__filters" role="group" aria-label="Chat type">
-        <button class="chip is-active" data-chat-kind="all" type="button">All</button>
+      <div class="filter-chips" role="group" aria-label="Chat type">
+        <button class="chip chip--active" data-chat-kind="all" type="button">All</button>
         <button class="chip" data-chat-kind="channel" type="button">Channels</button>
         <button class="chip" data-chat-kind="group" type="button">Groups</button>
         <button class="chip" data-chat-kind="dm" type="button">Direct</button>
       </div>
 
       <div id="chatList" class="chat-list" role="listbox" aria-label="Chat list">
-        <p class="placeholder">Loading chats…</p>
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>Loading conversations…</span>
+        </div>
       </div>
 
-      <footer class="sidebar__foot">
-        <span id="chatCount">—</span>
-        <button id="refreshChats" class="link-btn" type="button">Refresh</button>
+      <footer class="sidebar__footer">
+        <span class="chat-count" id="chatCount">—</span>
+        <button id="refreshChats" class="btn-icon" type="button" title="Refresh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+        </button>
       </footer>
     </aside>
 
-    <!-- ───────────────────────────── Main panel ────────────────────────── -->
-    <main class="main" aria-label="Files">
+    <!-- Main Panel -->
+    <main class="main-content" aria-label="Files">
       <div class="toolbar">
-        <div class="toolbar__row toolbar__row--title">
-          <div class="chat-title">
-            <h1 id="chatTitle">Pick a chat to begin</h1>
-            <p id="chatMeta" class="chat-title__meta">Its PDFs, videos, HTML files and images show up here.</p>
+        <div class="toolbar__top">
+          <div class="chat-info">
+            <div class="chat-avatar" id="chatAvatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <div class="chat-details">
+              <h1 class="chat-title" id="chatTitle">Select a conversation</h1>
+              <p class="chat-meta" id="chatMeta">Choose a chat to view its media files</p>
+            </div>
           </div>
-          <div class="status-pill" id="statusPill" data-state="idle">
-            <span class="status-pill__dot"></span>
-            <span id="statusText">Idle</span>
-          </div>
-        </div>
-
-        <div class="toolbar__row">
-          <div class="chips" role="group" aria-label="File type">
-            <button class="chip is-active" data-type="all" type="button">All</button>
-            <button class="chip" data-type="pdf" type="button">PDF</button>
-            <button class="chip" data-type="video" type="button">Video</button>
-            <button class="chip" data-type="html" type="button">HTML</button>
-            <button class="chip" data-type="image" type="button">Image</button>
-          </div>
-
-          <div class="actions">
-            <button id="btnSelectAll" class="btn" type="button" disabled>Select all</button>
-            <button id="btnClear" class="btn" type="button" disabled>Clear</button>
-            <button id="btnSyncAll" class="btn btn--ghost" type="button" disabled>Sync all</button>
-            <button id="btnStart" class="btn btn--primary" type="button" disabled>Start migration</button>
-            <button id="btnPause" class="btn" type="button" disabled>Pause</button>
-            <button id="btnResume" class="btn" type="button" disabled>Resume</button>
-            <button id="btnStop" class="btn btn--danger" type="button" disabled>Stop</button>
+          <div class="connection-status" id="statusPill" data-state="idle">
+            <span class="status-dot"></span>
+            <span class="status-label" id="statusText">Ready</span>
           </div>
         </div>
 
-        <div id="progressWrap" class="progress" hidden>
-          <div class="progress__bar"><div id="progressFill" class="progress__fill"></div></div>
-          <div class="progress__meta">
-            <span id="progressCounts">0 / 0</span>
-            <span id="progressCurrent" class="progress__current">—</span>
-            <span id="progressFailed" class="progress__failed"></span>
+        <div class="toolbar__bottom">
+          <div class="type-filters" role="group" aria-label="File type">
+            <button class="chip chip--active" data-type="all" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+              </svg>
+              All
+            </button>
+            <button class="chip" data-type="pdf" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/><path d="M9 15l3 3 3-3"/>
+              </svg>
+              PDF
+            </button>
+            <button class="chip" data-type="video" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+              </svg>
+              Video
+            </button>
+            <button class="chip" data-type="html" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+              </svg>
+              HTML
+            </button>
+            <button class="chip" data-type="image" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+              </svg>
+              Image
+            </button>
+          </div>
+
+          <div class="action-buttons">
+            <button id="btnSelectAll" class="btn btn--secondary" type="button" disabled>
+              Select All
+            </button>
+            <button id="btnClear" class="btn btn--secondary" type="button" disabled>
+              Clear
+            </button>
+            <button id="btnSyncAll" class="btn btn--ghost" type="button" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+              </svg>
+              Sync All
+            </button>
+            <button id="btnStart" class="btn btn--primary" type="button" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              Start Migration
+            </button>
+            <button id="btnPause" class="btn btn--secondary" type="button" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+              </svg>
+              Pause
+            </button>
+            <button id="btnResume" class="btn btn--secondary" type="button" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              Resume
+            </button>
+            <button id="btnStop" class="btn btn--danger" type="button" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              </svg>
+              Stop
+            </button>
+          </div>
+        </div>
+
+        <div id="progressWrap" class="progress-bar" hidden>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-info">
+            <span class="progress-stats" id="progressCounts">0 / 0 files</span>
+            <span class="progress-current" id="progressCurrent">Waiting to start…</span>
+            <span class="progress-errors" id="progressFailed"></span>
           </div>
         </div>
       </div>
 
-      <section id="fileArea" class="file-area">
+      <section id="fileArea" class="file-section">
         <div id="fileGrid" class="file-grid" role="listbox" aria-multiselectable="true"></div>
-        <div class="file-area__foot">
-          <button id="btnLoadMore" class="btn btn--wide" type="button" hidden>Load older files</button>
-          <p id="fileHint" class="placeholder">Select a chat from the left to list its files.</p>
+        <div class="file-section__footer">
+          <button id="btnLoadMore" class="btn btn--outline btn--wide" type="button" hidden>
+            Load Older Files
+          </button>
+          <div class="empty-state empty-state--lg" id="fileHint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>Select a conversation from the sidebar</span>
+          </div>
         </div>
       </section>
 
-      <div class="selection-bar" id="selectionBar" hidden>
-        <span id="selectionCount">0 selected</span>
-        <span id="selectionSize" class="selection-bar__size"></span>
+      <div class="selection-toolbar" id="selectionBar" hidden>
+        <div class="selection-info">
+          <span class="selection-count" id="selectionCount">0 selected</span>
+          <span class="selection-size" id="selectionSize"></span>
+        </div>
       </div>
     </main>
 
-    <!-- ───────────────────────────── Log console ───────────────────────── -->
-    <aside class="console" aria-label="Migration log">
-      <header class="console__head">
-        <div class="console__title">
-          <span class="dot" id="wsDot" data-state="off" aria-hidden="true"></span>
-          <strong>Live log</strong>
+    <!-- Log Console -->
+    <aside class="console-panel" aria-label="Migration log" id="consolePanel">
+      <header class="console-header">
+        <div class="console-title">
+          <span class="connection-dot" id="wsDot" data-state="off" aria-hidden="true"></span>
+          <strong>Activity Log</strong>
         </div>
-        <div class="console__tools">
-          <label class="toggle">
+        <div class="console-actions">
+          <label class="toggle toggle--sm">
             <input type="checkbox" id="autoScroll" checked />
-            <span>Follow</span>
+            <span class="toggle__slider"></span>
+            <span class="toggle__label">Auto-scroll</span>
           </label>
-          <button id="btnClearLog" class="link-btn" type="button">Clear</button>
+          <button id="btnClearLog" class="btn-icon btn-icon--sm" type="button" title="Clear log">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+          </button>
         </div>
       </header>
-      <div id="logView" class="console__body" role="log" aria-live="polite"></div>
-      <footer class="console__foot">
-        <span id="wsStatusText">Connecting…</span>
-        <span id="storeCount"></span>
+      <div id="logView" class="console-body" role="log" aria-live="polite"></div>
+      <footer class="console-footer">
+        <span class="console-status" id="wsStatusText">Connecting…</span>
+        <span class="console-storage" id="storeCount"></span>
       </footer>
     </aside>
   </div>
