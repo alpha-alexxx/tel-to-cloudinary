@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="telegram-dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Telegram → Cloudinary Migrator</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>☁️</text></svg>" />
+</head>
+<body>
+  <!-- ─────────────────────── Auth / setup overlay ─────────────────────── -->
+  <div class="overlay" id="authOverlay" hidden>
+    <div class="overlay__card">
+      <div class="overlay__brand">
+        <span class="brand__mark" aria-hidden="true">TC</span>
+        <div>
+          <strong>Telegram → Cloudinary</strong>
+          <p class="overlay__sub" id="stepSub">Unlock the dashboard to continue.</p>
+        </div>
+      </div>
+
+      <ol class="steps" id="stepTrack">
+        <li data-step="passcode">Unlock</li>
+        <li data-step="phone">Telegram</li>
+        <li data-step="cloudinary">Cloudinary</li>
+      </ol>
+
+      <!-- Step 1: dashboard passcode -->
+      <section class="pane" data-pane="passcode" hidden>
+        <label class="field">
+          <span>Dashboard passcode</span>
+          <input type="password" id="inpPasscode" autocomplete="current-password"
+                 placeholder="Set in backend/.env" />
+        </label>
+        <p class="pane__note">
+          This gate exists so a stranger who finds the port can't make Telegram
+          send a login code to your phone.
+        </p>
+        <button class="btn btn--primary btn--block" id="btnUnlock" type="button">Unlock</button>
+      </section>
+
+      <!-- Step 2: phone number -->
+      <section class="pane" data-pane="phone" hidden>
+        <div class="account-switch" id="knownAccounts" hidden>
+          <p class="pane__label">Continue as</p>
+          <div id="knownAccountList" class="account-switch__list"></div>
+          <p class="pane__label pane__label--or">or sign in with another number</p>
+        </div>
+        <label class="field">
+          <span>Phone number</span>
+          <input type="tel" id="inpPhone" autocomplete="tel" placeholder="+91 98765 43210" />
+        </label>
+        <p class="pane__note">Telegram sends the code to your app, not by SMS, when you're already signed in elsewhere.</p>
+        <button class="btn btn--primary btn--block" id="btnSendCode" type="button">Send code</button>
+      </section>
+
+      <!-- Step 3: OTP -->
+      <section class="pane" data-pane="code" hidden>
+        <label class="field">
+          <span>Login code sent to <b id="maskedPhone"></b></span>
+          <input type="text" id="inpCode" inputmode="numeric" autocomplete="one-time-code"
+                 maxlength="6" placeholder="12345" class="input--code" />
+        </label>
+        <p class="pane__note" id="codeTimer"></p>
+        <button class="btn btn--primary btn--block" id="btnVerifyCode" type="button">Verify</button>
+        <button class="link-btn link-btn--block" id="btnBackToPhone" type="button">Use a different number</button>
+      </section>
+
+      <!-- Step 4: 2FA -->
+      <section class="pane" data-pane="password" hidden>
+        <label class="field">
+          <span>Two-step verification password</span>
+          <input type="password" id="inpPassword" autocomplete="current-password" />
+        </label>
+        <p class="pane__note" id="passwordHint"></p>
+        <button class="btn btn--primary btn--block" id="btnSubmitPassword" type="button">Sign in</button>
+      </section>
+
+      <!-- Step 5: Cloudinary -->
+      <section class="pane" data-pane="cloudinary" hidden>
+        <label class="field">
+          <span>Cloud name</span>
+          <input type="text" id="inpCloudName" autocomplete="off" placeholder="your-cloud" />
+        </label>
+        <label class="field">
+          <span>API key</span>
+          <input type="text" id="inpApiKey" autocomplete="off" />
+        </label>
+        <label class="field">
+          <span>API secret</span>
+          <input type="password" id="inpApiSecret" autocomplete="off" />
+        </label>
+        <div class="field-row">
+          <label class="field field--grow">
+            <span>Folder</span>
+            <input type="text" id="inpFolder" value="telegram_migration" />
+          </label>
+          <label class="toggle toggle--field">
+            <input type="checkbox" id="inpFolderPerChat" checked />
+            <span>Sub-folder per chat</span>
+          </label>
+        </div>
+        <p class="pane__note">Verified against Cloudinary before it's saved, so a typo fails here rather than on file 300 of a run.</p>
+        <button class="btn btn--primary btn--block" id="btnSaveCloudinary" type="button">Save and continue</button>
+        <button class="link-btn link-btn--block" id="btnSkipCloudinary" type="button" hidden>Cancel</button>
+      </section>
+
+      <p class="overlay__error" id="authError" role="alert" hidden></p>
+    </div>
+  </div>
+
+  <div class="app">
+
+    <!-- ───────────────────────────── Sidebar ───────────────────────────── -->
+    <aside class="sidebar" aria-label="Chats">
+      <header class="sidebar__head">
+        <div class="brand">
+          <span class="brand__mark" aria-hidden="true">TC</span>
+          <div class="brand__text">
+            <strong id="accountName">Telegram → Cloudinary</strong>
+            <span id="accountLine" class="brand__sub">Connecting…</span>
+          </div>
+          <button class="icon-btn" id="btnAccountMenu" type="button"
+                  aria-haspopup="true" aria-expanded="false" title="Account">⋯</button>
+          <div class="menu" id="accountMenu" hidden role="menu">
+            <p class="menu__label">Accounts</p>
+            <div id="menuAccountList"></div>
+            <button class="menu__item" id="btnAddAccount" type="button" role="menuitem">Add another account</button>
+            <hr class="menu__rule" />
+            <button class="menu__item" id="btnCloudinarySettings" type="button" role="menuitem">Cloudinary target…</button>
+            <button class="menu__item" id="btnSignOut" type="button" role="menuitem">Sign out of Telegram</button>
+            <button class="menu__item menu__item--muted" id="btnLock" type="button" role="menuitem">Lock dashboard</button>
+          </div>
+        </div>
+        <div class="search">
+          <input id="chatSearch" type="search" placeholder="Search chats" autocomplete="off"
+                 aria-label="Search chats" />
+        </div>
+      </header>
+
+      <div class="sidebar__filters" role="group" aria-label="Chat type">
+        <button class="chip is-active" data-chat-kind="all" type="button">All</button>
+        <button class="chip" data-chat-kind="channel" type="button">Channels</button>
+        <button class="chip" data-chat-kind="group" type="button">Groups</button>
+        <button class="chip" data-chat-kind="dm" type="button">Direct</button>
+      </div>
+
+      <div id="chatList" class="chat-list" role="listbox" aria-label="Chat list">
+        <p class="placeholder">Loading chats…</p>
+      </div>
+
+      <footer class="sidebar__foot">
+        <span id="chatCount">—</span>
+        <button id="refreshChats" class="link-btn" type="button">Refresh</button>
+      </footer>
+    </aside>
+
+    <!-- ───────────────────────────── Main panel ────────────────────────── -->
+    <main class="main" aria-label="Files">
+      <div class="toolbar">
+        <div class="toolbar__row toolbar__row--title">
+          <div class="chat-title">
+            <h1 id="chatTitle">Pick a chat to begin</h1>
+            <p id="chatMeta" class="chat-title__meta">Its PDFs, videos, HTML files and images show up here.</p>
+          </div>
+          <div class="status-pill" id="statusPill" data-state="idle">
+            <span class="status-pill__dot"></span>
+            <span id="statusText">Idle</span>
+          </div>
+        </div>
+
+        <div class="toolbar__row">
+          <div class="chips" role="group" aria-label="File type">
+            <button class="chip is-active" data-type="all" type="button">All</button>
+            <button class="chip" data-type="pdf" type="button">PDF</button>
+            <button class="chip" data-type="video" type="button">Video</button>
+            <button class="chip" data-type="html" type="button">HTML</button>
+            <button class="chip" data-type="image" type="button">Image</button>
+          </div>
+
+          <div class="actions">
+            <button id="btnSelectAll" class="btn" type="button" disabled>Select all</button>
+            <button id="btnClear" class="btn" type="button" disabled>Clear</button>
+            <button id="btnSyncAll" class="btn btn--ghost" type="button" disabled>Sync all</button>
+            <button id="btnStart" class="btn btn--primary" type="button" disabled>Start migration</button>
+            <button id="btnPause" class="btn" type="button" disabled>Pause</button>
+            <button id="btnResume" class="btn" type="button" disabled>Resume</button>
+            <button id="btnStop" class="btn btn--danger" type="button" disabled>Stop</button>
+          </div>
+        </div>
+
+        <div id="progressWrap" class="progress" hidden>
+          <div class="progress__bar"><div id="progressFill" class="progress__fill"></div></div>
+          <div class="progress__meta">
+            <span id="progressCounts">0 / 0</span>
+            <span id="progressCurrent" class="progress__current">—</span>
+            <span id="progressFailed" class="progress__failed"></span>
+          </div>
+        </div>
+      </div>
+
+      <section id="fileArea" class="file-area">
+        <div id="fileGrid" class="file-grid" role="listbox" aria-multiselectable="true"></div>
+        <div class="file-area__foot">
+          <button id="btnLoadMore" class="btn btn--wide" type="button" hidden>Load older files</button>
+          <p id="fileHint" class="placeholder">Select a chat from the left to list its files.</p>
+        </div>
+      </section>
+
+      <div class="selection-bar" id="selectionBar" hidden>
+        <span id="selectionCount">0 selected</span>
+        <span id="selectionSize" class="selection-bar__size"></span>
+      </div>
+    </main>
+
+    <!-- ───────────────────────────── Log console ───────────────────────── -->
+    <aside class="console" aria-label="Migration log">
+      <header class="console__head">
+        <div class="console__title">
+          <span class="dot" id="wsDot" data-state="off" aria-hidden="true"></span>
+          <strong>Live log</strong>
+        </div>
+        <div class="console__tools">
+          <label class="toggle">
+            <input type="checkbox" id="autoScroll" checked />
+            <span>Follow</span>
+          </label>
+          <button id="btnClearLog" class="link-btn" type="button">Clear</button>
+        </div>
+      </header>
+      <div id="logView" class="console__body" role="log" aria-live="polite"></div>
+      <footer class="console__foot">
+        <span id="wsStatusText">Connecting…</span>
+        <span id="storeCount"></span>
+      </footer>
+    </aside>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

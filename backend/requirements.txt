@@ -1,0 +1,7 @@
+# Pinned to compatible ranges — bump deliberately, not accidentally.
+fastapi>=0.115,<0.117
+uvicorn[standard]>=0.30,<0.36
+telethon>=1.36,<2.0
+cloudinary>=1.40,<2.0
+python-dotenv>=1.0,<2.0
+pydantic>=2.7,<3.0
